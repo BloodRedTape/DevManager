@@ -7,6 +7,7 @@ class Application {
 private:
 	RenderWindow m_Window{ 1280, 720, "DevManager" , TextureFormat::Depth32};
 	ImGuiBackend m_ImGuiBackend{m_Window.FramebufferPass()};
+	bool m_IsFocused = true;
 public:
 	int Run();
 private:
