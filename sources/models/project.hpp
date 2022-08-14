@@ -2,6 +2,7 @@
 
 #include <core/list.hpp>
 #include <core/string.hpp>
+#include <core/defs.hpp>
 
 struct ProjectType {
 	String Name;
@@ -10,7 +11,7 @@ struct ProjectType {
 };
 
 struct Project {
-	const ProjectType* Type = nullptr;
+	size_t TypeIndex = InvalidIndex;
 	String Name;
 	String Path;
 };

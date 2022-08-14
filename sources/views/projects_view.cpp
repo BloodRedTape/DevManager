@@ -2,8 +2,9 @@
 #include <imgui/widgets.hpp>
 #include <core/ranges.hpp>
 
-ProjectsView::ProjectsView(List<Project>& projects):
-	m_Projects(projects)
+ProjectsView::ProjectsView(List<Project>& projects, const List<ProjectType> &types):
+	m_Projects(projects),
+	m_ProjectTypes(types)
 {}
 
 void ProjectsView::OnImGuiRender(){
@@ -11,7 +12,7 @@ void ProjectsView::OnImGuiRender(){
 	
 	for (auto [project, index] : IndexedRange(m_Projects)) {
 		ImGui::PushID(index);
-		ImGui::Text("%s - %s", project->Name.Data(), project->Type->Name.Data());
+		ImGui::Text("%s - %s", project->Name.Data(), m_ProjectTypes[project->TypeIndex].Name.Data());
 		ImGui::PopID();
 	}
 

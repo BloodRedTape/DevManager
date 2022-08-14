@@ -89,11 +89,11 @@ void Application::OnUpdate() {
 		for (const auto& project : Directory(path)) {
 			if (!project.IsDirectory)continue;
 
-			for (const auto& type : m_ProjectTypes) {
-				if (DoesProjectTypeMatch(path + "/" + project.Name, type)) {
+			for (auto [type, index]: IndexedRange(m_ProjectTypes)) {
+				if (DoesProjectTypeMatch(path + "/" + project.Name, *type)) {
 					m_Projects.Add(Project{
 						//XXX: Change to project index
-						&type,
+						index,
 						project.Name,
 						path + project.Name
 					});

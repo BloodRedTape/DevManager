@@ -24,7 +24,7 @@ private:
 	SearchPathsView m_SearchPathsView{ m_SearchPaths };
 
 	List<Project> m_Projects;
-	ProjectsView m_ProjectsView{ m_Projects };
+	ProjectsView m_ProjectsView{ m_Projects, m_ProjectTypes};
 public:
 	Application();
 
