@@ -87,6 +87,9 @@ void Application::OnImGuiRender() {
 		if (search_paths_requested)
 			m_SearchPathsView.Open();
 		m_SearchPathsView.OnImGuiRender();
+		if (project_types_requested)
+			m_ProjectTypesView.Open();
+		m_ProjectTypesView.OnImGuiRender();
 		ImGui::End();
 
 	}

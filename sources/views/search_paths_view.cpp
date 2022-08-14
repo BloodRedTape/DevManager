@@ -9,7 +9,6 @@ SearchPathsView::SearchPathsView(List<String>& paths):
 {}
 
 void SearchPathsView::OnImGuiRender() {
-	// Always center this window when appearing
 	ImVec2 center = ImGui::GetMainViewport()->GetCenter();
 	ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
 
@@ -22,8 +21,10 @@ void SearchPathsView::OnImGuiRender() {
 	
 	ImGui::SameLine();
 
-	if (ImGui::Button("Remove") && m_Paths.IsValidIndex(m_Selected))
+	if (ImGui::Button("Remove") && m_Paths.IsValidIndex(m_Selected)) {
 		m_Paths.UnorderedRemove(m_Selected);
+		m_Selected = InvalidIndex;
+	}
 
 	if (m_Paths.Size() && ImGui::BeginTable("Paths", 1, ImGuiTableFlags_BordersOuter | ImGuiTableFlags_RowBg)) {
 

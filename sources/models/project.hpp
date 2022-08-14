@@ -1,12 +1,12 @@
 #pragma once
 
-#include <regex>
 #include <core/list.hpp>
 #include <core/string.hpp>
 
 struct ProjectType {
-	std::regex Matcher;
-	List<std::regex> Cleaners;
+	String Name;
+	String MatchExpr;
+	String CleanExpr;
 };
 
 struct Project {
