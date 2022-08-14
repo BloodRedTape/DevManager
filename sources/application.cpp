@@ -5,6 +5,9 @@
 #include <graphics/api/gpu.hpp>
 #include <core/os/directory.hpp>
 #include <regex>
+#include "serialization.hpp"
+
+using json = nlohmann::json;
 
 Application::Application() {
 	m_Window.SetEventsHanlder({ this, &Application::OnEvent });
@@ -19,6 +22,24 @@ Application::Application() {
 	m_ImGuiBackend.GetIO().Fonts->Clear();
 	m_ImGuiBackend.GetIO().Fonts->AddFontFromFileTTF(R"(C:\Users\E1\Desktop\Graph\Fonts\Roboto\Roboto-Medium.ttf)", 16.f, nullptr, s_Ranges);
 	m_ImGuiBackend.RebuildFonts();
+	
+	auto config = File::ReadEntire(ConfigFilepath);
+
+	if (!config.HasValue())return;
+
+	json j = json::parse(config.Value().Data());
+	m_ProjectTypes = j["ProjectTypes"];
+	m_SearchPaths = j["SearchPaths"];
+}
+
+Application::~Application() {
+	json j;
+
+	j["ProjectTypes"] = m_ProjectTypes;
+	j["SearchPaths"] = m_SearchPaths;
+	
+	std::string content = j.dump(4);
+	File::WriteEntire(ConfigFilepath, { content.data(), content.size() });
 }
 
 int Application::Run(){

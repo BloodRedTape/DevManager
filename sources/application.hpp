@@ -10,6 +10,7 @@
 #include "views/search_paths_view.hpp"
 
 class Application {
+	static constexpr const char* ConfigFilepath = "config.json";
 private:
 	RenderWindow m_Window{ 1280, 720, "DevManager" , TextureFormat::Depth32};
 	ImGuiBackend m_ImGuiBackend{m_Window.FramebufferPass()};
@@ -26,6 +27,8 @@ private:
 	ProjectsView m_ProjectsView{ m_Projects };
 public:
 	Application();
+
+	~Application();
 
 	int Run();
 private:
