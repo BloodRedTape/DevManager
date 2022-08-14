@@ -95,7 +95,7 @@ void Application::OnUpdate() {
 						//XXX: Change to project index
 						index,
 						project.Name,
-						path + project.Name
+						path
 					});
 					break;
 				}

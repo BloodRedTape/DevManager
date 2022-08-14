@@ -10,10 +10,17 @@ ProjectsView::ProjectsView(List<Project>& projects, const List<ProjectType> &typ
 void ProjectsView::OnImGuiRender(){
 	ImGui::Begin(StringID);
 	
-	for (auto [project, index] : IndexedRange(m_Projects)) {
-		ImGui::PushID(index);
-		ImGui::Text("%s - %s", project->Name.Data(), m_ProjectTypes[project->TypeIndex].Name.Data());
-		ImGui::PopID();
+	if (ImGui::BeginTable("Projects", 3, ImGuiTableFlags_RowBg)) {
+		for (const auto& project : m_Projects) {
+			ImGui::TableNextRow();
+			ImGui::TableNextColumn();
+			ImGui::Text(project.Name);
+			ImGui::TableNextColumn();
+			ImGui::Text(m_ProjectTypes[project.TypeIndex].Name);
+			ImGui::TableNextColumn();
+			ImGui::Text(project.Path);
+		}
+		ImGui::EndTable();
 	}
 
 	ImGui::End();
