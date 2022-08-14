@@ -5,12 +5,12 @@
 
 struct ProjectType {
 	String Name;
-	String MatchExpr;
+	List<String> MatchExprs;
 	String CleanExpr;
 };
 
 struct Project {
-	ProjectType* Type = nullptr;
+	const ProjectType* Type = nullptr;
 	String Name;
 	String Path;
 };

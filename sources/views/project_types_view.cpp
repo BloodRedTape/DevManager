@@ -1,12 +1,19 @@
-#include "views/project_types.hpp"
+#include "views/project_types_view.hpp"
 
 bool ProjectTypeInputView::OnImGuiRender(){
 	bool res = false;
 
 	if (ImGui::BeginPopup(StringID)) {
-		bool name  = ImGui::InputText("Name", Name, 0),
-			 match = ImGui::InputText("Match Expr", MatchExpr, 0),
-			 clean = ImGui::InputText("Clean Expr", CleanExpr, 0);
+		bool name = ImGui::InputText("Name", Name, 0);
+
+		for (const auto& match_expr: MatchExprs) 
+			ImGui::Text(match_expr);
+		bool match = ImGui::InputText("Match Expr", CurrentMatchExpr, 0);
+		ImGui::SameLine();
+		if (ImGui::Button("Append") && CurrentMatchExpr.Size())
+			MatchExprs.Add(Move(CurrentMatchExpr));
+	
+		bool clean = ImGui::InputText("Clean Expr", CleanExpr, 0);
 
 		const bool written = name || match || clean;
 
@@ -36,7 +43,8 @@ bool ProjectTypeInputView::OnImGuiRender(){
 
 void ProjectTypeInputView::Open(){
 	Name = {};
-	MatchExpr = {};
+	MatchExprs = {};
+	CurrentMatchExpr = {};
 	CleanExpr = {};
 
 	Error = {};
@@ -45,7 +53,7 @@ void ProjectTypeInputView::Open(){
 }
 
 bool ProjectTypeInputView::IsDataValid() const{
-	return Name.Size() && MatchExpr.Size() && CleanExpr.Size();
+	return Name.Size() && MatchExprs.Size() && CleanExpr.Size();
 }
 
 ProjectTypesView::ProjectTypesView(List<ProjectType>& types):

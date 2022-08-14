@@ -5,8 +5,6 @@
 namespace ImGui {
 	inline void ProjectType(const ::ProjectType& type) {
 		ImGui::Text(type.Name);
-		ImGui::Text(type.MatchExpr);
-		ImGui::Text(type.CleanExpr);
 	}
 }//namespace ImGui::
 
@@ -15,7 +13,8 @@ private:
 	static constexpr const char* StringID = "Project Type Input";
 
 	String Name;
-	String MatchExpr;
+	List<String> MatchExprs;
+	String CurrentMatchExpr;
 	String CleanExpr;
 
 	String Error;
@@ -28,7 +27,7 @@ public:
 	ProjectType Data() {
 		return {
 			Move(Name),
-			Move(MatchExpr),
+			Move(MatchExprs),
 			Move(CleanExpr)
 		};
 	}

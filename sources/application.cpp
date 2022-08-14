@@ -4,6 +4,7 @@
 #include <core/print.hpp>
 #include <graphics/api/gpu.hpp>
 #include <core/os/directory.hpp>
+#include <regex>
 
 Application::Application() {
 	m_Window.SetEventsHanlder({ this, &Application::OnEvent });
@@ -27,6 +28,7 @@ int Application::Run(){
 	while (m_Window.IsOpen()) {
 		float dt = frametime_clock.Restart().AsSeconds();
 		if (m_IsFocused) {
+			OnUpdate();
 			m_Window.AcquireNextFramebuffer(&acquire);
 			m_ImGuiBackend.NewFrame(dt, Mouse::RelativePosition(m_Window), m_Window.Size());
 			OnImGuiRender();
@@ -43,6 +45,43 @@ int Application::Run(){
 	GPU::WaitIdle();
 
 	return 0;
+}
+
+static bool DoesProjectTypeMatch(const String &project, const ProjectType &type) {
+	for (const auto& expr : type.MatchExprs) {
+		bool matched = false;
+		std::regex match_expr(expr.Data());
+		for (const auto& entry : Directory(project)) {
+			if (std::regex_match(entry.Name.Data(), match_expr))
+				matched = true;
+		}
+		if (!matched)
+			return false;
+	}
+
+	return true;
+}
+
+void Application::OnUpdate() {
+	m_Projects.Clear();
+	for (const auto &path : m_SearchPaths) {
+		for (const auto& project : Directory(path)) {
+			if (!project.IsDirectory)continue;
+
+			for (const auto& type : m_ProjectTypes) {
+				if (DoesProjectTypeMatch(path + "/" + project.Name, type)) {
+					m_Projects.Add(Project{
+						//XXX: Change to project index
+						&type,
+						project.Name,
+						path + project.Name
+					});
+					break;
+				}
+			}
+			
+		}
+	}
 }
 
 void Application::OnImGuiRender() {
@@ -94,9 +133,10 @@ void Application::OnImGuiRender() {
 
 	}
 
+	m_ProjectsView.OnImGuiRender();
+
 	//m_ProjectTypesView.OnImGuiRender();
-	ImGui::ShowDemoWindow();
-	
+	//ImGui::ShowDemoWindow();
 }
 
 void Application::OnEvent(const Event& e){

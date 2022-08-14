@@ -5,7 +5,8 @@
 #include <core/list.hpp>
 #include <core/string.hpp>
 #include <core/unicode.hpp>
-#include "views/project_types.hpp"
+#include "views/project_types_view.hpp"
+#include "views/projects_view.hpp"
 #include "views/search_paths_view.hpp"
 
 class Application {
@@ -20,12 +21,17 @@ private:
 
 	List<String> m_SearchPaths;
 	SearchPathsView m_SearchPathsView{ m_SearchPaths };
+
+	List<Project> m_Projects;
+	ProjectsView m_ProjectsView{ m_Projects };
 public:
 	Application();
 
 	int Run();
 private:
 	void OnImGuiRender();
+
+	void OnUpdate();
 
 	void OnEvent(const Event& e);
 };

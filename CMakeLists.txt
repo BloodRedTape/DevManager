@@ -11,9 +11,9 @@ add_subdirectory(StraitXPackages/ImGui)
 set(SAMPLE_SOURCES
     "./sources/main.cpp"
     "./sources/application.cpp"
-    "./sources/views/project_types.cpp"
+    "./sources/views/project_types_view.cpp"
     "sources/views/search_paths_view.cpp"
-)
+    "sources/views/projects_view.cpp")
 
 set(SAMPLE_INCLUDE
     "./sources"
