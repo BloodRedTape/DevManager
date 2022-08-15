@@ -6,7 +6,6 @@
 #include <core/string.hpp>
 #include <core/unicode.hpp>
 #include "views/project_types_view.hpp"
-#include "views/projects_view.hpp"
 #include "views/search_paths_view.hpp"
 
 class Application {
@@ -22,9 +21,9 @@ private:
 
 	List<String> m_SearchPaths;
 	SearchPathsView m_SearchPathsView{ m_SearchPaths };
-
+	
+	size_t m_Selected = InvalidIndex;
 	List<Project> m_Projects;
-	ProjectsView m_ProjectsView{ m_Projects, m_ProjectTypes};
 public:
 	Application();
 
@@ -37,4 +36,6 @@ private:
 	void OnUpdate();
 
 	void OnEvent(const Event& e);
+
+	void QueryProjects();
 };

@@ -30,6 +30,8 @@ Application::Application() {
 	json j = json::parse(config.Value().Data());
 	m_ProjectTypes = j["ProjectTypes"];
 	m_SearchPaths = j["SearchPaths"];
+
+	QueryProjects();
 }
 
 Application::~Application() {
@@ -84,25 +86,7 @@ static bool DoesProjectTypeMatch(const String &project, const ProjectType &type)
 }
 
 void Application::OnUpdate() {
-	m_Projects.Clear();
-	for (const auto &path : m_SearchPaths) {
-		for (const auto& project : Directory(path)) {
-			if (!project.IsDirectory)continue;
 
-			for (auto [type, index]: IndexedRange(m_ProjectTypes)) {
-				if (DoesProjectTypeMatch(path + "/" + project.Name, *type)) {
-					m_Projects.Add(Project{
-						//XXX: Change to project index
-						index,
-						project.Name,
-						path
-					});
-					break;
-				}
-			}
-			
-		}
-	}
 }
 
 void Application::OnImGuiRender() {
@@ -154,8 +138,58 @@ void Application::OnImGuiRender() {
 
 	}
 
-	m_ProjectsView.OnImGuiRender();
+	ImGui::Begin("Toolbar");
+	{
+		if (ImGui::Button("Refresh"))
+			QueryProjects();
+		ImGui::SameLine();
+		if (ImGui::Button("Clear Selected"))
+			;// ClearSelected();
+		ImGui::SameLine();
+		if (ImGui::Button("Clear All"))
+			;// ClearAll();
+	}
+	ImGui::End();
 
+
+	ImGui::Begin("Projects View");
+	{
+		if (ImGui::BeginTable("Projects", 3, ImGuiTableFlags_RowBg)) {
+			for (auto [project, index] : IndexedRange(m_Projects)) {
+				ImGui::TableNextRow();
+				ImGui::TableNextColumn();
+				if (ImGui::Selectable(project->Name.Data(), index == m_Selected, ImGuiSelectableFlags_SpanAllColumns))
+					m_Selected = index;
+				ImGui::TableNextColumn();
+				ImGui::Text(m_ProjectTypes[project->TypeIndex].Name);
+				ImGui::TableNextColumn();
+				ImGui::Text(project->Path);
+			}
+			ImGui::EndTable();
+		}
+	}
+	ImGui::End();
+
+	ImGui::Begin("Project Inspector");
+	{
+		if (m_Projects.IsValidIndex(m_Selected)) {
+			const Project& project = m_Projects[m_Selected];
+
+			std::regex clean_expr(m_ProjectTypes[project.TypeIndex].CleanExpr.Data());
+
+			for (auto entry : Directory(project.Path + "/" + project.Name)) {
+				bool should_be_removed = std::regex_match(entry.Name.Data(), clean_expr);
+
+				auto color = should_be_removed ? IM_COL32(20, 200, 255, 255) : IM_COL32_WHITE;
+
+				ImGui::PushStyleColor(ImGuiCol_Text, color);
+				ImGui::Text(entry.Name);
+				ImGui::PopStyleColor();
+			}
+		}
+	}
+	ImGui::End();
+	
 	//m_ProjectTypesView.OnImGuiRender();
 	//ImGui::ShowDemoWindow();
 }
@@ -170,4 +204,27 @@ void Application::OnEvent(const Event& e){
 		m_IsFocused = false;
 	
 	m_ImGuiBackend.HandleEvent(e);
+}
+
+void Application::QueryProjects() {
+	m_Selected = InvalidIndex;
+	m_Projects.Clear();
+	for (const auto &path : m_SearchPaths) {
+		for (const auto& project : Directory(path)) {
+			if (!project.IsDirectory)continue;
+
+			for (auto [type, index]: IndexedRange(m_ProjectTypes)) {
+				if (DoesProjectTypeMatch(path + "/" + project.Name, *type)) {
+					m_Projects.Add(Project{
+						//XXX: Change to project index
+						index,
+						project.Name,
+						path
+					});
+					break;
+				}
+			}
+			
+		}
+	}
 }

@@ -14,7 +14,7 @@ set(SAMPLE_SOURCES
     "./sources/application.cpp"
     "./sources/views/project_types_view.cpp"
     "sources/views/search_paths_view.cpp"
-    "sources/views/projects_view.cpp" "sources/serialization.cpp")
+     "sources/serialization.cpp" )
 
 set(SAMPLE_INCLUDE
     "./sources"
