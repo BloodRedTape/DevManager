@@ -5,8 +5,16 @@
 #include <core/list.hpp>
 #include <core/string.hpp>
 #include <core/unicode.hpp>
+#include <core/string_print.hpp>
 #include "views/project_types_view.hpp"
 #include "views/search_paths_view.hpp"
+#include <core/pair.hpp>
+
+enum class LogType {
+	Error,
+	Info,
+	Warrning
+};
 
 class Application {
 	static constexpr const char* ConfigFilepath = "config.json";
@@ -24,6 +32,10 @@ private:
 	
 	size_t m_Selected = InvalidIndex;
 	List<Project> m_Projects;
+
+	List<Pair<LogType,String>> m_Log;
+
+	File m_LogFile{"log.txt", File::Mode::Write, true};
 public:
 	Application();
 
@@ -38,4 +50,20 @@ private:
 	void OnEvent(const Event& e);
 
 	void QueryProjects();
+
+	void ClearSelected();
+
+	void ClearAll();
+
+	void ClearProject(const Project& project);
+	
+	template<typename...ArgsType>
+	void Log(LogType type, const char* fmt, const ArgsType &...args) {
+		String line = StringPrint(fmt, args...);
+		if (m_LogFile.IsOpen()) {
+			m_LogFile.Write(line.Data(), line.Size());
+			m_LogFile.Write("\n", 1);
+		}
+		m_Log.Emplace(type, Move(line));
+	}
 };

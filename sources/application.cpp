@@ -9,6 +9,19 @@
 
 using json = nlohmann::json;
 
+ImU32 LogTypeColor(LogType type) {
+	switch (type)
+	{
+	case LogType::Error:
+		return IM_COL32(255, 0, 0, 255);
+	case LogType::Info:
+		return IM_COL32_WHITE;
+	case LogType::Warrning:
+		return IM_COL32(255, 255, 0, 255);
+	}
+	SX_ASSERT(false);
+}
+
 Application::Application() {
 	m_Window.SetEventsHanlder({ this, &Application::OnEvent });
 
@@ -144,10 +157,10 @@ void Application::OnImGuiRender() {
 			QueryProjects();
 		ImGui::SameLine();
 		if (ImGui::Button("Clear Selected"))
-			;// ClearSelected();
+			ClearSelected();
 		ImGui::SameLine();
 		if (ImGui::Button("Clear All"))
-			;// ClearAll();
+			ClearAll();
 	}
 	ImGui::End();
 
@@ -189,6 +202,16 @@ void Application::OnImGuiRender() {
 		}
 	}
 	ImGui::End();
+
+	ImGui::Begin("Log");
+	{
+		for (const auto& line : m_Log) {
+			ImGui::PushStyleColor(ImGuiCol_Text, LogTypeColor(line.First));
+			ImGui::Text(line.Second);
+			ImGui::PopStyleColor();
+		}
+	}
+	ImGui::End();
 	
 	//m_ProjectTypesView.OnImGuiRender();
 	//ImGui::ShowDemoWindow();
@@ -226,5 +249,44 @@ void Application::QueryProjects() {
 			}
 			
 		}
+	}
+}
+
+void Application::ClearSelected() {
+	if (m_Projects.IsValidIndex(m_Selected))
+		ClearProject(m_Projects[m_Selected]);
+}
+
+void Application::ClearAll() {
+	for (const auto &project : m_Projects)
+		ClearProject(project);
+}
+
+void Application::ClearProject(const Project& project) {
+	Log(LogType::Info, "Clearing % project '%' at '%'", m_ProjectTypes[project.TypeIndex].Name, project.Name, project.Path);
+	if (!Directory::Exists(project.Path))
+		return Log(LogType::Error, "Project does not exists anymore");
+	
+	std::regex clean_expr(m_ProjectTypes[project.TypeIndex].CleanExpr.Data());
+	String full_project_path = project.Path + "/" + project.Name;
+	for (auto entry : Directory(full_project_path)) {
+		bool should_be_removed = std::regex_match(entry.Name.Data(), clean_expr);
+		
+		if (!should_be_removed)
+			continue;
+
+		bool is_removed = false;
+
+		String full_entry_path = full_project_path + "/" + entry.Name;
+
+		if (entry.IsDirectory)
+			is_removed = (bool)Directory::Delete(full_entry_path);
+		else
+			is_removed = (bool)File::Delete(full_entry_path);
+			
+		if (!is_removed)
+			Log(LogType::Warrning, "Can't delete '%'", entry.Name);
+		else
+			Log(LogType::Info, "Deleted '%' %", entry.Name, entry.IsDirectory ? "directory" : "file");
 	}
 }
